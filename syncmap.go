@@ -7,6 +7,11 @@ type Map struct {
 	lock *sync.RWMutex
 }
 
+type Tuple struct {
+	Key interface{}
+	Val interface{}
+}
+
 func New() *Map {
 	lock := new(sync.RWMutex)
 	tmp := make(map[interface{}]interface{})
@@ -43,4 +48,17 @@ func (t *Map) Len() int {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 	return len(t.data)
+}
+
+func (t *Map) Iter() <-chan Tuple {
+	outChan := make(chan Tuple)
+	go func() {
+		t.lock.RLock()
+		for key, value := range t.data {
+			outChan <- Tuple{key, value}
+		}
+		t.lock.RUnlock()
+		close(outChan)
+	}()
+	return outChan
 }

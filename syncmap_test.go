@@ -71,3 +71,18 @@ func TestDelete(t *testing.T) {
 		t.Error("Key should have been removed")
 	}
 }
+
+func TestIter(t *testing.T) {
+	m := New()
+	m.Set("test", 1)
+	m.Set("test2", 2)
+
+	count := 0
+	for tup := range m.Iter() {
+		count += tup.value.(int)
+	}
+
+	if count != 3 {
+		t.Error("Should iterate all items")
+	}
+}
